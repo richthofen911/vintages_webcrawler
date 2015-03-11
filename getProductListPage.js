@@ -38,7 +38,7 @@ function handle_page(url){
 //        }
 
         for(var i = 0; i < buff.length; i++){
-            fs.write('Programming/phantomJS/vintages/crawlog.txt', buff[i]+'\n', 'a')
+            fs.write('Programming/phantomJS/vintages/crawlog.txt', buff[i]+', \n', 'a')
         }
 
         phantom.exit(0)
