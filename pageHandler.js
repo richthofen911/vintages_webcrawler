@@ -43,7 +43,6 @@ exports.calcListPageAmountForTheType = function(type) {
     })
 }
 
-
 exports.getProductLinkListForTheType = function(pageAmount, type){
     var wineType = type.replace(" ", "+")
     for(var i = 1; i <= pageAmount; i++){
@@ -63,14 +62,63 @@ exports.getProductLinkListForTheType = function(pageAmount, type){
                     }
                 }
                 for(var i = 0; i < buff.length; i++){
-                    fs.appendFile('Programming/phantomJS/vintages_crawler/crawlog.txt', buff[i]+ '\n', function(err){
-                        if (err) {
-                            throw err
-                                console.log("Write to file error")
-                        }})
+                    fs.appendFile('Programming/phantomJS/vintages_crawler/product_links.txt', buff[i]+ '\n', function(err){
+                        if (err) { throw err; console.log("Write to file error") }})
                 }
             }
             else console.log("get pageList error")
         })
     }
+}
+
+exports.parseProductPage = function(url, type){
+    var wine_type = type
+    openPage(url, function(content){
+        if(content){
+            //if (err) { throw err; console.log("Write to file error") }})
+            //var reg_data_cspc = /<br>\s{5}VINTAGES/
+            var reg_data_cspc = /name="itemNumber" value="\d+/g
+            var reg_data_name = /name="itemName" value.+type/
+            var reg_data_price = /price"\svalue="\d+\.\d+/gm
+            var reg_data_region = /Made\sin:.+</
+            //var reg_data_release = /<[Bb][Rr]>\s{5}Release Date:\s{5}.+\n/
+            var reg_data_release = /\s{5}Release Date:\s+.+\s/
+            var reg_data_alcohol_pre = wine_type + ",*\\s*\\S*<br>\\s{12}.+\\."
+            var reg_data_alcohol = new RegExp(reg_data_alcohol_pre)
+
+            var temp_cspc = content.match(reg_data_cspc).toString()
+            var temp_name = content.match(reg_data_name).toString()
+            var temp_price = content.match(reg_data_price).toString()
+            var temp_region = content.match(reg_data_region).toString()
+            var temp_release = content.match(reg_data_release).toString()
+            var temp_alcohol = content.match(reg_data_alcohol).toString()
+
+            temp_cspc = temp_cspc.substring(25, temp_cspc.length)
+            temp_name = temp_name.substring(25, temp_name.length-6)
+            temp_name = temp_name.replace(/=""/g, "")
+            temp_price = temp_price.substring(14, temp_price.length)
+            temp_region = temp_region.substring(9, temp_region.length-1)
+            temp_release = temp_release.substring(24, temp_release.length-1)
+            temp_alcohol = temp_alcohol.substring(temp_alcohol.length-18, temp_alcohol.length)
+
+            if(temp_release == 'N/A'){temp_release = false}
+
+            var tuple = {}
+            tuple["url"] = url
+            tuple["cspc"] = temp_cspc
+            tuple["friendly"] = temp_name
+            tuple["type"] = type
+            tuple["alcohol"] = temp_alcohol
+            tuple["price"] = temp_price
+            tuple["region"] = temp_region
+            tuple["release"] = temp_release
+
+            console.log(JSON.stringify(tuple))
+
+            fs.appendFile('Programming/phantomJS/vintages_crawler/product_description_list.txt', JSON.stringify(tuple)+', \n', function(err){
+                if (err) { throw err; console.log("Write to file error") }})
+
+        }
+        else console.log("get product page error")
+    })
 }

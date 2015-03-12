@@ -11,7 +11,6 @@ function parseInfo(url, type){
     page.open(url, function(status) {
         if(status === 'success'){
             console.log('success')
-//            page.render('local.png')
             var wine_type = type
 
             //console.log(args[2], args[3])
@@ -55,9 +54,9 @@ function parseInfo(url, type){
 
             console.log(JSON.stringify(tuple))
 
-            fs.write('Programming/phantomJS/vintages/result.txt', JSON.stringify(tuple)+', \n', 'a')
+            fs.write('Programming/phantomJS/vintages/product_description_list.txt', JSON.stringify(tuple)+', \n', 'a')
 						
-            //fs.write('Programming/phantomJS/vintages/test.txt', page.content, 'a')
+            //fs.write('Programming/phantomJS/vintages/temp.txt', page.content, 'a')
         }
         phantom.exit();
 

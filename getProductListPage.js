@@ -10,7 +10,7 @@ function handle_page(url){
     page.open(url, function() {
 
         var content = page.content;
-//        fs.write('Programming/phantomJS/vintages/test.txt', page.content, 'a')
+//        fs.write('Programming/phantomJS/vintages/temp.txt', page.content, 'a')
         var reg = /\/lcbo-ear\/vintages\/product\/details\.do\?language=EN&.{21}/g
 //        var reg_fix = /item=\d+/
         var temp = content.match(reg)
@@ -38,7 +38,7 @@ function handle_page(url){
 //        }
 
         for(var i = 0; i < buff.length; i++){
-            fs.write('Programming/phantomJS/vintages/crawlog.txt', buff[i]+', \n', 'a')
+            fs.write('Programming/phantomJS/vintages/product_link_list.txt', buff[i]+', \n', 'a')
         }
 
         phantom.exit(0)
