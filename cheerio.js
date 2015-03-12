@@ -3,16 +3,24 @@
  */
 
 var handlePage = require("./pageHandler.js")
-var step = require("step")
-var loopTimes
-step(
-    handlePage.calcListPageAmountForTheType("Sparkling Wine"),
-    handlePage.getProductLinkListForTheType(err, pageAmount)
-)
+
+//var loopTimes = 0
 
 
 
+handlePage.calcListPageAmountForTheType("Sparkling Wine")
 
-//loopTimes = handlePage.calcListPageAmountForTheType("Sparkling Wine")
+setInterval(function() {
+    var det = handlePage.pageCount
+    if (det == 0) {
+        console.log("meibian")
+        console.log(det)
+    }
+    else{
+        console.log("bianle")
+        console.log(det)
+        clearInterval(this)
+    }
+}, 100)
 
 //handlePage.getProductLinkListForTheType(16, "Sparkling Wine")

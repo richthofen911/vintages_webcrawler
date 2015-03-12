@@ -1,12 +1,15 @@
 /**
  * Created by richthofen80 on 3/11/15.
  */
-var http = require("http");
+var http = require("http")
 var fs = require('fs')
 reg_productLink = /\/lcbo-ear\/vintages\/product\/details\.do\?language=EN&itemNumber=\d+/g
 url_prefix_1="http://www.vintages.com/lcbo-ear/vintages/product/searchResults.do?STOCK_TYPE_NAME=Vintages&ITEM_NAME=&KEYWORDS=&ITEM_NUMBER=&productListingType=&LIQUOR_TYPE_SHORT_=Wine&CATEGORY_NAME="
 url_prefix_2="&SUB_CATEGORY_NAME=*&PRODUCING_CNAME=*&PRODUCING_REGION_N=*&UNIT_VOLUME=*&SELLING_PRICE=*&LTO_SALES_CODE=&VQA_CODE=&KOSHER_CODE=&VINTAGES_CODE=&VALUE_ADD_SALES_CO=&AIR_MILES_SALES_CO=&SWEETNESS_DESCRIPTOR=&VARIETAL_NAME=&WINE_STYLE=&language=EN&style=Vintages&page="
 url_suffix="&action=result&sort=sortedName&order=1&resultsPerPage=10"
+
+var pageCount = 0
+exports.pageCount = pageCount
 
 function openPage(url, callback) {
     http.get(url, function(res) {
@@ -16,6 +19,7 @@ function openPage(url, callback) {
     }).on("error", function() { callback(null) })
 }
 
+type_global = "Sparkling Wine"
 
 exports.calcListPageAmountForTheType = function(type) {
     var totalPages = 0
@@ -29,7 +33,8 @@ exports.calcListPageAmountForTheType = function(type) {
             var totalResults = content.match(reg_totalResults).toString()
             totalPages = Math.ceil(totalResults.substring(10, totalResults.length) / 10)
             console.log('total pages ' + totalPages)
-            return totalPages
+            exports.pageCount = totalPages
+            console.log('now pageCount is ' + pageCount)
         }
         else {
             console.log("probe error")
@@ -38,34 +43,34 @@ exports.calcListPageAmountForTheType = function(type) {
     })
 }
 
-//exports.getProductLinkListForTheType = function(pageAmount, wineType){
-exports.getProductLinkListForTheType = function(pageAmount){
-        for(var i = 1; i <= pageAmount; i++){
-            //var url = url_prefix_1 + wineType + url_prefix_2 + i + url_suffix
-            var url = url_prefix_1 + "Sparkling Wine" + url_prefix_2 + i + url_suffix
-            openPage(url, function(content){
-                if(content){
-                    var temp = content.match(reg_productLink)
-                    for (var i = 0; i < temp.length; i++) {
-                        temp[i] = temp[i].replace("\"", "")
-                        temp[i] = temp[i].replace("amp;", "")
-                    }
-                    var buff = new Array()
-                    buff.push('http://www.vintages.com' + temp[0])
-                    for (var i = 1; i < temp.length; i++) {
-                        if (temp[i] != temp[i - 1]) {
-                            buff.push('http://www.vintages.com' + temp[i])
-                        }
-                    }
-                    for(var i = 0; i < buff.length; i++){
-                        fs.appendFile('Programming/phantomJS/vintages_crawler/crawlog.txt', buff[i]+ '\n', function(err){
-                            if (err) {
-                                throw err
-                                console.log("Write to file error")
-                            }})
+
+exports.getProductLinkListForTheType = function(pageAmount, type){
+    var wineType = type.replace(" ", "+")
+    for(var i = 1; i <= pageAmount; i++){
+        var url = url_prefix_1 + wineType + url_prefix_2 + i + url_suffix
+        openPage(url, function(content){
+            if(content){
+                var temp = content.match(reg_productLink)
+                for (var i = 0; i < temp.length; i++) {
+                    temp[i] = temp[i].replace("\"", "")
+                    temp[i] = temp[i].replace("amp;", "")
+                }
+                var buff = new Array()
+                buff.push('http://www.vintages.com' + temp[0])
+                for (var i = 1; i < temp.length; i++) {
+                    if (temp[i] != temp[i - 1]) {
+                        buff.push('http://www.vintages.com' + temp[i])
                     }
                 }
-                else console.log("get pageList error")
-            })
-        }
+                for(var i = 0; i < buff.length; i++){
+                    fs.appendFile('Programming/phantomJS/vintages_crawler/crawlog.txt', buff[i]+ '\n', function(err){
+                        if (err) {
+                            throw err
+                                console.log("Write to file error")
+                        }})
+                }
+            }
+            else console.log("get pageList error")
+        })
+    }
 }
