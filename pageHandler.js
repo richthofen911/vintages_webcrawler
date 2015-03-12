@@ -62,7 +62,7 @@ exports.getProductLinkListForTheType = function(pageAmount, type){
                     }
                 }
                 for(var i = 0; i < buff.length; i++){
-                    fs.appendFile('Programming/phantomJS/vintages_crawler/product_links.txt', buff[i]+ '\n', function(err){
+                    fs.appendFile('Programming/phantomJS/vintages_crawler/product_link_list.txt', buff[i]+ '\n', function(err){
                         if (err) { throw err; console.log("Write to file error") }})
                 }
             }
@@ -83,7 +83,8 @@ exports.parseProductPage = function(url, type){
             var reg_data_region = /Made\sin:.+</
             //var reg_data_release = /<[Bb][Rr]>\s{5}Release Date:\s{5}.+\n/
             var reg_data_release = /\s{5}Release Date:\s+.+\s/
-            var reg_data_alcohol_pre = wine_type + ",*\\s*\\S*<br>\\s{12}.+\\."
+            //var reg_data_alcohol_pre = wine_type + ",*\\s*\\S*<br>\\s{12}.+\\."
+            var reg_data_alcohol_pre = wine_type + ",*\\s*.*<br>\\s{12}.+\\."
             var reg_data_alcohol = new RegExp(reg_data_alcohol_pre)
 
             var temp_cspc = content.match(reg_data_cspc).toString()
