@@ -29,8 +29,9 @@ openPage(url_probe, function (content) {
     }
 })
 */
-var wineType = "Ros%E9 Wine"
 
+var wineType = "Champagne"
+/*
 handlePage.calcListPageAmountForTheType(wineType)
 
 setInterval(function() {
@@ -44,7 +45,7 @@ setInterval(function() {
         handlePage.getProductLinkListForTheType(loopTime, wineType)
     }
 }, 100)
-
+*/
 /*
 lr = new LineByLineReader('~/product_link_list.txt')
 lr.on('error', function(err){throw err})
@@ -52,4 +53,4 @@ lr.on('line', function(line){handlePage.parseProductPage(line, "Sparkling Wine")
 lr.on('end', function(){console.log("done")})
 */
 
-//handlePage.parseProductPage("http://www.vintages.com/lcbo-ear/vintages/product/details.do?language=EN&itemNumber=385211", "Sparkling Wine")
+handlePage.parseProductPage("http://www.vintages.com/lcbo-ear/vintages/product/details.do?language=EN&itemNumber=387829", wineType)

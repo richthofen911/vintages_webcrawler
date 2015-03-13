@@ -10,6 +10,7 @@ url_suffix="&action=result&sort=sortedName&order=1&resultsPerPage=10"
 
 var pageCount = 0
 exports.pageCount = pageCount
+exports.openPage = openPage
 
 function openPage(url, callback) {
     http.get(url, function(res) {
@@ -19,7 +20,6 @@ function openPage(url, callback) {
     }).on("error", function() { callback(null) })
 }
 
-type_global = "Sparkling Wine"
 
 exports.calcListPageAmountForTheType = function(type) {
     var totalPages = 0
@@ -75,8 +75,12 @@ exports.parseProductPage = function(url, type){
     var wine_type = type
     openPage(url, function(content){
         if(content){
-            //if (err) { throw err; console.log("Write to file error") }})
+/*
+            fs.appendFile('Programming/phantomJS/vintages_crawler/temp.txt', content, function(err){
+                if (err) { throw err; console.log("Write to file error") }})
+*/
             //var reg_data_cspc = /<br>\s{5}VINTAGES/
+
             var reg_data_cspc = /name="itemNumber" value="\d+/g
             var reg_data_name = /name="itemName" value.+type/
             var reg_data_price = /price"\svalue="\d+\.\d+/gm
@@ -86,6 +90,7 @@ exports.parseProductPage = function(url, type){
             //var reg_data_alcohol_pre = wine_type + ",*\\s*\\S*<br>\\s{12}.+\\."
             var reg_data_alcohol_pre = wine_type + ",*\\s*.*<br>\\s{12}.+\\."
             var reg_data_alcohol = new RegExp(reg_data_alcohol_pre)
+            var reg_data_vintage = /\d{4}/
 
             var temp_cspc = content.match(reg_data_cspc).toString()
             var temp_name = content.match(reg_data_name).toString()
@@ -93,21 +98,49 @@ exports.parseProductPage = function(url, type){
             var temp_region = content.match(reg_data_region).toString()
             var temp_release = content.match(reg_data_release).toString()
             var temp_alcohol = content.match(reg_data_alcohol).toString()
+            var temp_vintage = null
 
-            temp_cspc = temp_cspc.substring(25, temp_cspc.length)
-            temp_name = temp_name.substring(25, temp_name.length-6)
-            temp_name = temp_name.replace(/=""/g, "")
-            temp_price = temp_price.substring(14, temp_price.length)
-            temp_region = temp_region.substring(9, temp_region.length-1)
-            temp_release = temp_release.substring(24, temp_release.length-1)
-            temp_alcohol = temp_alcohol.substring(temp_alcohol.length-18, temp_alcohol.length)
-
-            if(temp_release == 'N/A'){temp_release = false}
+            if(temp_cspc == null){temp_cspc = false}
+            else {
+                temp_cspc = temp_cspc.toString()
+                temp_cspc = temp_cspc.substring(25, temp_cspc.length)
+            }
+            if(temp_name == null){temp_name = false}
+            else {
+                temp_name = temp_name.toString()
+                temp_name = temp_name.substring(25, temp_name.length-6)
+                temp_name = temp_name.replace(/=""/g, "")
+                temp_vintage = temp_name.match(reg_data_vintage)
+                if(temp_vintage == null){temp_vintage = false}
+                else temp_vintage = temp_vintage.toString()
+            }
+            if(temp_price == null){temp_price = false}
+            else {
+                temp_price = temp_price.toString()
+                temp_price = temp_price.substring(14, temp_price.length)
+            }
+            if(temp_region == null){temp_region = false}
+            else {
+                temp_region = temp_region.toString()
+                temp_region = temp_region.substring(9, temp_region.length-1)
+            }
+            if(temp_release== null){temp_release = false}
+            else {
+                temp_release = temp_release.toString()
+                temp_release = temp_release.substring(24, temp_release.length-1)
+                if(temp_release == 'N/A'){temp_release = false}
+            }
+            if(temp_alcohol == null){temp_alcohol = false}
+            else {
+                temp_alcohol = temp_alcohol.toString()
+                temp_alcohol = temp_alcohol.substring(temp_alcohol.length-18, temp_alcohol.length)
+            }
 
             var tuple = {}
             tuple["url"] = url
             tuple["cspc"] = temp_cspc
             tuple["friendly"] = temp_name
+            tuple["vintage"] = temp_vintage
             tuple["type"] = type
             tuple["alcohol"] = temp_alcohol
             tuple["price"] = temp_price
